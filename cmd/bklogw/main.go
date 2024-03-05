@@ -1,7 +1,11 @@
 package main
 
-import "github.com/zestx5/bklogw"
+import (
+	"os"
+
+	"github.com/zestx5/bklogw"
+)
 
 func main() {
-	bklogw.Main()
+	os.Exit(bklogw.Main())
 }

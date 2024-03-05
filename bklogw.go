@@ -1,5 +1,5 @@
 package bklogw
 
-func Main() {
-
+func Main() int {
+	return 0
 }
