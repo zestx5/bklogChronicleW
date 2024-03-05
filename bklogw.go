@@ -1,0 +1,5 @@
+package bklogw
+
+func Main() {
+
+}
