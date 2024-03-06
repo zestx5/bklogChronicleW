@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/zestx5/bklogw/internal/storage"
 )
@@ -35,10 +36,26 @@ func TestStoreImplementsStorer(t *testing.T) {
 	var _ storage.Storer = &storage.Store{}
 }
 
+func TestAddGameWorksAsExpected(t *testing.T) {
+	t.Parallel()
+	want := storage.Game{Id: 1, Title: "Tekken 8"}
+	err := db.Add(want)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := db.Get(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cmp.Equal(want, got) {
+		t.Error(cmp.Diff(want, got))
+	}
+}
+
 func TestGetReturnsErrorWhenNoGame(t *testing.T) {
 	t.Parallel()
 	_, err := db.Get(5)
 	if err == nil {
-		t.Error("Wanted error when no game, got nothing")
+		t.Error("want error when no game, got nothing")
 	}
 }

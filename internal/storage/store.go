@@ -12,10 +12,11 @@ CREATE TABLE IF NOT EXISTS backlog(
 `
 
 type Storer interface {
+	Add(Game) error
 	Get(int) (Game, error)
 	GetAll() []Game
 	Delete(int) bool
-	Update(int, Game) Game
+	Update(int, Game) (Game, error)
 	Close() error
 }
 
@@ -24,11 +25,35 @@ type Store struct {
 }
 
 type Game struct {
-	Name string
+	Id    int
+	Title string
+}
+
+func (s *Store) Add(g Game) error {
+	stmt, err := s.DB.Prepare("INSERT INTO backlog(title) VALUES(?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	if _, err := stmt.Exec(g.Title); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Store) Get(id int) (Game, error) {
-	return Game{}, nil
+	stmt, err := s.DB.Prepare("SELECT * FROM backlog WHERE id = ?")
+	if err != nil {
+		return Game{}, err
+	}
+	defer stmt.Close()
+	var g Game
+	err = stmt.QueryRow(id).Scan(&g.Id, &g.Title)
+	if err != nil {
+		return g, err
+	}
+	return g, nil
+
 }
 
 func (s *Store) GetAll() []Game {
@@ -39,8 +64,8 @@ func (s *Store) Delete(id int) bool {
 	return true
 }
 
-func (s *Store) Update(id int, updatedGame Game) Game {
-	return Game{}
+func (s *Store) Update(id int, updatedGame Game) (Game, error) {
+	return Game{}, nil
 }
 
 func (s *Store) Close() error {
