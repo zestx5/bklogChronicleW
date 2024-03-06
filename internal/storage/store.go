@@ -88,7 +88,22 @@ func (s *Store) Delete(id int) error {
 }
 
 func (s *Store) Update(id int, updatedGame Game) (Game, error) {
-	return Game{}, nil
+	g, err := s.Get(id)
+	if err != nil {
+		return Game{}, err
+	}
+	g.Title = updatedGame.Title
+
+	stmt, err := s.DB.Prepare("UPDATE backlog SET title = ? WHERE id = ?")
+	if err != nil {
+		return Game{}, nil
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(g.Title, g.Id)
+	if err != nil {
+		return Game{}, err
+	}
+	return g, nil
 }
 
 func (s *Store) Close() error {

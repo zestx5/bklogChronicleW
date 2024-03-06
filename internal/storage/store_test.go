@@ -93,6 +93,23 @@ func TestDeleteWorksAsExpected(t *testing.T) {
 	}
 }
 
+func TestUpdateWorksAsExpected(t *testing.T) {
+	g := storage.Game{Id: 1, Title: "Tekken 8"}
+	err := db.Add(g)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := storage.Game{Id: 1, Title: "Persona 5"}
+	got, err := db.Update(g.Id, want)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cmp.Equal(want, got) {
+		t.Error(cmp.Diff(want, got))
+	}
+}
+
 func TestGetReturnsErrorWhenNoGame(t *testing.T) {
 	_, err := db.Get(-1)
 	if err == nil {
