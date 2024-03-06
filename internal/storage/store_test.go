@@ -37,7 +37,6 @@ func TestStoreImplementsStorer(t *testing.T) {
 }
 
 func TestAddGameWorksAsExpected(t *testing.T) {
-	t.Parallel()
 	want := storage.Game{Id: 1, Title: "Tekken 8"}
 	err := db.Add(want)
 	if err != nil {
@@ -52,9 +51,30 @@ func TestAddGameWorksAsExpected(t *testing.T) {
 	}
 }
 
+func TestGetAllWorksAsExpected(t *testing.T) {
+	want := []storage.Game{
+		{Id: 1, Title: "Tekken 8"},
+		{Id: 2, Title: "Last Epoch"},
+		{Id: 3, Title: "Nioh"},
+	}
+	for _, v := range want {
+		err := db.Add(v)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := db.GetAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// TestAddGame adds 1 game, so 4 in total
+	if len(got) != 4 {
+		t.Errorf("want %d entites, got %d", len(want), len(got))
+	}
+}
+
 func TestGetReturnsErrorWhenNoGame(t *testing.T) {
-	t.Parallel()
-	_, err := db.Get(5)
+	_, err := db.Get(-1)
 	if err == nil {
 		t.Error("want error when no game, got nothing")
 	}

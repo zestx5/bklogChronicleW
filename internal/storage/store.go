@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS backlog(
 type Storer interface {
 	Add(Game) error
 	Get(int) (Game, error)
-	GetAll() []Game
+	GetAll() ([]Game, error)
 	Delete(int) bool
 	Update(int, Game) (Game, error)
 	Close() error
@@ -56,8 +56,22 @@ func (s *Store) Get(id int) (Game, error) {
 
 }
 
-func (s *Store) GetAll() []Game {
-	return nil
+func (s *Store) GetAll() ([]Game, error) {
+	gs := []Game{}
+	q := "SELECT * FROM backlog"
+	rows, err := s.DB.Query(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var g Game
+		if err := rows.Scan(&g.Id, &g.Title); err != nil {
+			return nil, err
+		}
+		gs = append(gs, g)
+	}
+	return gs, nil
 }
 
 func (s *Store) Delete(id int) bool {
