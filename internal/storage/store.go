@@ -1,6 +1,15 @@
 package storage
 
-import "database/sql"
+import (
+	"database/sql"
+)
+
+const CreateStr string = `
+CREATE TABLE IF NOT EXISTS backlog(
+	id INTEGER NOT NULL PRIMARY KEY,
+	title TEXT
+);
+`
 
 type Storer interface {
 	Get(int) (Game, error)
@@ -11,7 +20,7 @@ type Storer interface {
 }
 
 type Store struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 type Game struct {
@@ -35,7 +44,7 @@ func (s *Store) Update(id int, updatedGame Game) Game {
 }
 
 func (s *Store) Close() error {
-	if err := s.db.Close(); err != nil {
+	if err := s.DB.Close(); err != nil {
 		return err
 	}
 	return nil
@@ -47,6 +56,9 @@ func Open(driver string, name string) (Storer, error) {
 		return nil, err
 	}
 	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+	if _, err := db.Exec(CreateStr); err != nil {
 		return nil, err
 	}
 
