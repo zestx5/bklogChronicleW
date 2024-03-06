@@ -15,7 +15,7 @@ type Storer interface {
 	Add(Game) error
 	Get(int) (Game, error)
 	GetAll() ([]Game, error)
-	Delete(int) bool
+	Delete(int) error
 	Update(int, Game) (Game, error)
 	Close() error
 }
@@ -74,8 +74,17 @@ func (s *Store) GetAll() ([]Game, error) {
 	return gs, nil
 }
 
-func (s *Store) Delete(id int) bool {
-	return true
+func (s *Store) Delete(id int) error {
+	stmt, err := s.DB.Prepare("DELETE FROM backlog WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Store) Update(id int, updatedGame Game) (Game, error) {

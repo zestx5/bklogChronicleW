@@ -49,6 +49,7 @@ func TestAddGameWorksAsExpected(t *testing.T) {
 	if !cmp.Equal(want, got) {
 		t.Error(cmp.Diff(want, got))
 	}
+	db.Delete(want.Id)
 }
 
 func TestGetAllWorksAsExpected(t *testing.T) {
@@ -67,9 +68,28 @@ func TestGetAllWorksAsExpected(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// TestAddGame adds 1 game, so 4 in total
-	if len(got) != 4 {
+	if len(got) != 3 {
 		t.Errorf("want %d entites, got %d", len(want), len(got))
+	}
+	for _, v := range want {
+		db.Delete(v.Id)
+	}
+}
+
+func TestDeleteWorksAsExpected(t *testing.T) {
+	g := storage.Game{Id: 1, Title: "Tekken 8"}
+	err := db.Add(g)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	db.Delete(g.Id)
+	got, err := db.GetAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 0 {
+		t.Errorf("want 0 rows in db, got %d", len(got))
 	}
 }
 
