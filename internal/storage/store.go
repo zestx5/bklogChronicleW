@@ -3,10 +3,11 @@ package storage
 import "database/sql"
 
 type Storer interface {
-	Get(int) (any, error)
-	GetAll() []any
+	Get(int) (Game, error)
+	GetAll() []Game
 	Delete(int) bool
-	Update(int, any) any
+	Update(int, Game) Game
+	Close() error
 }
 
 type Store struct {
@@ -40,7 +41,7 @@ func (s *Store) Close() error {
 	return nil
 }
 
-func Open(driver string, name string) (*Store, error) {
+func Open(driver string, name string) (Storer, error) {
 	db, err := sql.Open(driver, name)
 	if err != nil {
 		return nil, err
